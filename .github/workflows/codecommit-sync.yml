@@ -1,9 +1,30 @@
-- name: Github to AWS CodeCommit Sync
-  # You may pin to the exact commit or the version.
-  # uses: tsgit18/sync-up-to-codecommit-action@f8764bf63c636c16c98d55d2ebe44fff0e37e707
-  uses: tsgit18/sync-up-to-codecommit-action@v1.0.6
-  with:
-    # CodeCommit repository name.
-    repository_name: github-sync-text
-    # Region of the CodeCommit repository.
-    aws_region: eu-central-1
+name: sync to codecommit
+
+on:
+  push:
+    tags-ignore:
+      - '*'
+    branches:
+      - 'main'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1.0.3
+        with:
+          aws-access-key-id: ${{ secrets.SYNC_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.SYNC_AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+
+      - name: Sync up to CodeCommit
+        uses: tsgit18/sync-up-to-codecommit-action@v1.0.6
+        with:
+          repository_name: github-sync-text
+          aws_region: eu-central-1
